@@ -1,7 +1,9 @@
+\echo Use "CREATE EXTENSION ap_pgutils" to load this file. \quit
+
 CREATE OR REPLACE FUNCTION
 gethostname() RETURNS TEXT
-LANGUAGE C STABLE
-AS '$libdir/ap_pgutils.so', 'pg_gethostname';
+AS 'MODULE_PATHNAME', 'pg_gethostname'
+LANGUAGE C STABLE;
 
 CREATE OR REPLACE FUNCTION
 argon2(
@@ -13,8 +15,8 @@ argon2(
   IN variant TEXT DEFAULT 'i',
   IN parallelism INT DEFAULT 1
 ) RETURNS TEXT
-LANGUAGE C STABLE
-AS '$libdir/ap_pgutils.so', 'pg_argon2';
+AS 'MODULE_PATHNAME', 'pg_argon2'
+LANGUAGE C IMMUTABLE STRICT;
 
 CREATE OR REPLACE FUNCTION
 totp_verify(
@@ -22,5 +24,5 @@ totp_verify(
   IN otp INTEGER,
   IN tolerance INTEGER
 ) RETURNS BOOLEAN
-LANGUAGE C VOLATILE
-AS '$libdir/ap_pgutils.so', 'pg_totp_verify';
+AS 'MODULE_PATHNAME', 'pg_totp_verify'
+LANGUAGE C VOLATILE;

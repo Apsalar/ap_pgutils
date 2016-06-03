@@ -1,16 +1,19 @@
 PG_HOME=	/usr/local/postgres64
 PG_BIN=		$(PG_HOME)/bin/postgres
 
+EXTENSION=	ap_pgutils
 MODULE_big=	ap_pgutils
 OBJS=		ap_pgutils.o
-SHLIB_LINK=	-L argon2 -largon2
-DATA=		ap_pgutils.sql
+SHLIB_LINK=	$(ARGON) $(OPENSSL)
+ARGON=		-L argon2 -largon2
+OPENSSL=	-L/usr/local/ssl/lib -R/usr/local/ssl/lib -lcrypto
+DATA=		ap_pgutils--1.0.sql
 EXTRA_CLEAN=	argon2
 
 #COMMON_CFLAGS=	-g -O3
 COMMON_CFLAGS=	-g -O0
 
-PG_CPPFLAGS=	$(COMMON_CFLAGS) -Iargon2/include
+PG_CPPFLAGS=	$(COMMON_CFLAGS) -Iargon2/include -I/usr/local/ssl/include
 
 PG_CONFIG = $(PG_HOME)/bin/pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
@@ -38,3 +41,4 @@ test: ap_pgutils.so
 	echo 'select gethostname();'$(PGT)
 	echo "select argon2('password', 'somesalt', 2, 16, 24, 'i');"$(PGT)
 	echo "select argon2('password', 'somesalt', 2, 16, 24, 'i', 4);"$(PGT)
+	python totp.py$(PGT)

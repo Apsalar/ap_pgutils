@@ -1,0 +1,4 @@
+comment = 'Apsalar PostgreSQL utilities'
+default_version = '1.0'
+module_pathname = '$libdir/ap_pgutils'
+relocatable = true
