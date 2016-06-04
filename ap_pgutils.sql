@@ -24,3 +24,10 @@ totp_verify(
 ) RETURNS BOOLEAN
 LANGUAGE C VOLATILE
 AS '$libdir/ap_pgutils.so', 'pg_totp_verify';
+
+CREATE OR REPLACE FUNCTION
+b32_encode(
+  IN data BYTEA
+) RETURNS TEXT
+LANGUAGE C STABLE
+AS '$libdir/ap_pgutils.so', 'pg_b32_encode';

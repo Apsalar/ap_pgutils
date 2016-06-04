@@ -42,3 +42,4 @@ test: ap_pgutils.so
 	echo "select argon2('password', 'somesalt', 2, 16, 24, 'i');"$(PGT)
 	echo "select argon2('password', 'somesalt', 2, 16, 24, 'i', 4);"$(PGT)
 	python totp.py$(PGT)
+	echo "select b32_encode(decode('1234567890ABCDEF', 'hex'));"$(PGT)

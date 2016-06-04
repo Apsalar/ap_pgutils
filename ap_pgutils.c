@@ -231,7 +231,6 @@ extern Datum pg_totp_verify(PG_FUNCTION_ARGS)
                   + (hashbuf[offset+3])
                  ) & 0x7FFFFFFF
                  ) % 1000000;
-    fprintf(stderr, "@@@@@@@@ %d %u\n", i, truncated);
     if (otp == truncated) {
       PG_RETURN_BOOL(1);
     }
@@ -240,7 +239,39 @@ extern Datum pg_totp_verify(PG_FUNCTION_ARGS)
   PG_RETURN_BOOL(0);
 }
 
-/*
-  select totp_verify('ABCDEFGHIJKLMNOPQRSTUVWX', 0, 0);
-  select totp_verify('QRSTUVWX', 0, 0);
-*/
+PG_FUNCTION_INFO_V1(pg_b32_encode);
+static unsigned char b32_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXY234567";
+
+extern Datum pg_b32_encode(PG_FUNCTION_ARGS)
+{
+  bytea *raw = PG_GETARG_BYTEA_P(0);
+  int rawlen = VARSIZE(raw) - VARHDRSZ;
+  text *out;
+  int i, j, outlen, bits;
+  unsigned int accum;
+
+  outlen = (8 * rawlen) / 5 + (((8 * rawlen) % 5) ? 1 : 0);
+  out = palloc(VARHDRSZ + outlen);
+  SET_VARSIZE(out, VARHDRSZ + outlen);
+  
+  /* encode in chunks of up to 8 bytes */
+  accum = 0;
+  j = 0;
+  for (i=0; i<rawlen; i++) {
+    accum = (accum << 8) | VARDATA(raw)[i];
+    bits += 8;
+    while (bits >= 5) {
+      unsigned int b = accum & (0x1f << (bits - 5));
+      accum ^= b;
+      b >>= bits - 5;
+      VARDATA(out)[j++] = b32_table[b];
+      bits -= 5;
+    }
+  }
+  if (bits) {
+    accum <<= 5 - bits;
+    VARDATA(out)[j++] = b32_table[accum & 0x20];
+  }
+  
+  return (Datum) out;
+}
