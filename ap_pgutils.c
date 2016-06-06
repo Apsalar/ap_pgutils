@@ -240,7 +240,7 @@ extern Datum pg_totp_verify(PG_FUNCTION_ARGS)
 }
 
 PG_FUNCTION_INFO_V1(pg_b32_encode);
-static unsigned char b32_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXY234567";
+static unsigned char b32_table[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 
 extern Datum pg_b32_encode(PG_FUNCTION_ARGS)
 {
@@ -249,6 +249,7 @@ extern Datum pg_b32_encode(PG_FUNCTION_ARGS)
   text *out;
   int i, j, outlen, bits;
   unsigned int accum;
+  unsigned char *rawdata = (unsigned char *) VARDATA(raw);
 
   outlen = (8 * rawlen) / 5 + (((8 * rawlen) % 5) ? 1 : 0);
   out = palloc(VARHDRSZ + outlen);
@@ -258,7 +259,7 @@ extern Datum pg_b32_encode(PG_FUNCTION_ARGS)
   accum = 0;
   j = 0;
   for (i=0; i<rawlen; i++) {
-    accum = (accum << 8) | VARDATA(raw)[i];
+    accum = (accum << 8) | rawdata[i];
     bits += 8;
     while (bits >= 5) {
       unsigned int b = accum & (0x1f << (bits - 5));
