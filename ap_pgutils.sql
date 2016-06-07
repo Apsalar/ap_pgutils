@@ -17,6 +17,14 @@ LANGUAGE C STABLE
 AS '$libdir/ap_pgutils.so', 'pg_argon2';
 
 CREATE OR REPLACE FUNCTION
+argon2_verify(
+  IN encoded TEXT,
+  IN password TEXT
+) RETURNS BOOL
+LANGUAGE C STABLE
+AS '$libdir/ap_pgutils.so', 'pg_argon2_verify';
+
+CREATE OR REPLACE FUNCTION
 totp_verify(
   IN b32_secret TEXT,
   IN otp INTEGER,

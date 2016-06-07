@@ -45,3 +45,7 @@ test: ap_pgutils.so
 	echo "select b32_encode(decode('1234567890ABCDEF', 'hex'));"$(PGT)
 	echo "select b32_encode(decode('79d35a91e4', 'hex'));"$(PGT)
 	echo "select b32_encode(decode('7fd823bf86', 'hex'));"$(PGT)
+	echo "select argon2_verify(argon2('password', 'somesalt', 2, 16, 24, 'i', 4), 'password');"$(PGT)
+	echo "select argon2_verify(argon2('password', 'somesalt', 2, 16, 24, 'i', 4), 'wrongpassword');"$(PGT)
+	echo "select argon2_verify('bogushash', 'wrongpassword');"$(PGT)
+	echo "select argon2_verify(replace(argon2('password', 'somesalt', 2, 16, 24, 'i', 4), 'argon2i', 'argon2x'), 'wrongpassword');"$(PGT)

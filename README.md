@@ -34,6 +34,16 @@ and 5 optional ones:
 The result is an Argon2 hash in extended crypt format, as a PostgreSQL TEXT
 value.
 
+The function `argon2_verify` verifies a password against an Argon2 hash.
+
+It takes 2 required arguments:
+- `encoded` (text): the encoded Argon2 hash as output by `argon2`
+- `password` (text): the password to verify
+
+The result is `TRUE` if the password matches the hash, `FALSE` if the password
+does not match, and possibly an exception if other situations occur, like
+malformed hashes.
+
 ### Two-factor authentication
 
 The function `totp_verify` implements the [Time-based One-Time Password}

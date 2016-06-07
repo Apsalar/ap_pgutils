@@ -112,10 +112,54 @@ extern Datum pg_argon2(PG_FUNCTION_ARGS)
     secure_wipe_memory(VARDATA(password), pwdlen);
     ereport(ERROR,
             (errcode(ERRCODE_INTERNAL_ERROR),
-             errmsg("argon2 hash failed, err=%d", status)));
+             errmsg("argon2 hash failed, err=%s",
+                    argon2_error_message(status))));
     return (Datum) NULL;
   }
   return (Datum) result;
+}
+
+PG_FUNCTION_INFO_V1(pg_argon2_verify);
+extern Datum pg_argon2_verify(PG_FUNCTION_ARGS)
+{
+  char *encoded = text_to_cstring(PG_GETARG_TEXT_P(0));
+  text *password = PG_GETARG_TEXT_P(1);
+  int pwdlen = VARSIZE(password) - VARHDRSZ;
+  int status;
+  char variant;
+  
+  /* check parameters */
+  if (strncmp(encoded, "$argon2", 7) != 0 || strlen(encoded) < 8) {
+    secure_wipe_memory(VARDATA(password), pwdlen);
+    ereport(ERROR,
+            (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+             errmsg("Not a valid Argon2 hash: \"%s\"", encoded)));
+    return (Datum) NULL;
+  }
+  variant = encoded[7];
+  if (variant != 'i' && variant != 'd') {
+    secure_wipe_memory(VARDATA(password), pwdlen);
+    ereport(ERROR,
+            (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+             errmsg("Argon2 variant must be 'i' or 'd', not '%c'", variant)));
+    return (Datum) NULL;
+  }
+
+  status= argon2_verify(encoded, VARDATA(password), pwdlen,
+                        variant == 'i' ? Argon2_i : Argon2_d);
+  switch (status) {
+  case 0:
+    PG_RETURN_BOOL(1);
+  case ARGON2_VERIFY_MISMATCH:
+    PG_RETURN_BOOL(0);
+  default:
+    secure_wipe_memory(VARDATA(password), pwdlen);
+    ereport(ERROR,
+            (errcode(ERRCODE_INTERNAL_ERROR),
+             errmsg("argon2 verification failed, err=%s",
+                    argon2_error_message(status))));
+    return (Datum) NULL;
+  }
 }
 
 #define MAXBUFLEN 64
