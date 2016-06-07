@@ -2,6 +2,8 @@
 PostgreSQL extension with utility functions for hostname, argon2 password
 hashing and TOTP based 2 factor authentication
 
+The only dependencies are OpenSSL and GNU Make (and of course PostgreSQL).
+
 ## Authentication
 
 ### Password hashing
@@ -12,6 +14,8 @@ billions of MD5/SHA1/ calculations per second on programs like
 [oclHashcat](http://hashcat.net/oclhashcat/). Here is a
 [good introduction](https://hynek.me/articles/storing-passwords/) to the
 subject,
+
+#### argon2
 
 The function `argon2` implements the
 [Argon2](https://en.wikipedia.org/wiki/Argon2) algorithm, winner of the
@@ -33,6 +37,8 @@ and 5 optional ones:
 
 The result is an Argon2 hash in extended crypt format, as a PostgreSQL TEXT
 value.
+
+#### argon2_verify
 
 The function `argon2_verify` verifies a password against an Argon2 hash.
 
