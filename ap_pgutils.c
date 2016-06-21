@@ -255,7 +255,7 @@ extern Datum pg_totp_verify(PG_FUNCTION_ARGS)
     unsigned char *md;
     unsigned int md_len;
     
-    ctr_be = htonll(ctr + i * TOTP_TIME_STEP);
+    ctr_be = htonll(ctr + i);
 
     md = HMAC(EVP_sha1(), buf, buflen,
               (unsigned char *)&ctr_be, sizeof(ctr_be), hashbuf, &md_len);
