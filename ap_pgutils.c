@@ -247,7 +247,7 @@ extern Datum pg_totp_verify(PG_FUNCTION_ARGS)
   buflen = k;
   /* TOTP */
   ctr = time(NULL) / TOTP_TIME_STEP;
-  for (i=-tolerance; i <= +tolerance; i += TOTP_TIME_STEP) {
+  for (i=-tolerance; i <= +tolerance; i += 1) {
     unsigned long long ctr_be;
     unsigned char hashbuf[EVP_MAX_MD_SIZE];
     int offset;
