@@ -6,7 +6,7 @@ MODULE_big=	ap_pgutils
 OBJS=		ap_pgutils.o
 SHLIB_LINK=	$(ARGON) $(OPENSSL)
 ARGON=		-L argon2 -largon2
-OPENSSL=	-L/usr/local/ssl/lib -R/usr/local/ssl/lib -lcrypto
+OPENSSL=	-L/usr/local/ssl/lib -Wl,-R/usr/local/ssl/lib -lcrypto
 DATA=		ap_pgutils--1.0.sql
 EXTRA_CLEAN=	argon2
 
