@@ -254,8 +254,16 @@ extern Datum pg_totp_verify(PG_FUNCTION_ARGS)
     unsigned int truncated;
     unsigned char *md;
     unsigned int md_len;
-    
+
+#ifdef linux
+    #if __BYTE_ORDER == __LITTLE_ENDIAN
+    ctr_be =__bswap_constant_64(ctr + i);  // Compiler builtin
+    #else
+    ctr_be = ctr + i
+      #endif
+#else
     ctr_be = htonll(ctr + i);
+#endif
 
     md = HMAC(EVP_sha1(), buf, buflen,
               (unsigned char *)&ctr_be, sizeof(ctr_be), hashbuf, &md_len);
