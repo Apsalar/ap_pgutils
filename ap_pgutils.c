@@ -18,6 +18,16 @@
 #include "argon2.h"
 #include "argon2/src/core.h"
 
+#if defined(__linux__)
+  #include <endian.h>
+#elif defined(__FreeBSD__) || defined(__NetBSD__)
+  #include <sys/endian.h>
+#elif defined(__OpenBSD__)
+  #include <sys/types.h>
+#elif defined(__sun)
+  #define be64toh(x) htonll(x)
+#endif
+
 #ifdef PG_MODULE_MAGIC
 PG_MODULE_MAGIC;
 #endif
@@ -255,15 +265,7 @@ extern Datum pg_totp_verify(PG_FUNCTION_ARGS)
     unsigned char *md;
     unsigned int md_len;
 
-#ifdef linux
-    #if __BYTE_ORDER == __LITTLE_ENDIAN
-    ctr_be =__bswap_constant_64(ctr + i);  // Compiler builtin
-    #else
-    ctr_be = ctr + i
-      #endif
-#else
-    ctr_be = htonll(ctr + i);
-#endif
+    ctr_be = htobe64(ctr + i);
 
     md = HMAC(EVP_sha1(), buf, buflen,
               (unsigned char *)&ctr_be, sizeof(ctr_be), hashbuf, &md_len);
